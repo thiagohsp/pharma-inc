@@ -101,6 +101,7 @@ export default function PatientsList() {
         mx="auto"
         px="6"
         color="gray.700"
+        h="80vh"
       >
         <Box
           flex="1"
@@ -151,7 +152,7 @@ export default function PatientsList() {
           </Flex>
           <Box
             mt={8}
-            h="600px"
+            h="60vh"
             overflowY="scroll"
             css={{
               '&::-webkit-scrollbar': {
@@ -199,9 +200,13 @@ export default function PatientsList() {
                       filter ?
                         patient.name.first
                           .concat(patient.name.last)
-                          .toLowerCase()
+                          .toLocaleLowerCase()
+                          .normalize('NFD')
+                          .replace(/[\u0300-\u036f]/g, '')
                           .includes(
-                            filter.toLowerCase()
+                            filter.toLocaleLowerCase()
+                            .normalize('NFD')
+                            .replace(/[\u0300-\u036f]/g, '')                            
                           ) || checkName(patient.name.first.concat(patient.name.last), filter)
                         : true
                     ).map((item) => (
