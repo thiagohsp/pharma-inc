@@ -1,3 +1,4 @@
+import { AxiosRequestConfig } from "axios";
 import React, { createContext, ReactNode, useState } from "react";
 import { api } from "../services/api";
 
@@ -27,9 +28,15 @@ export type Patient = {
   }
 }
 
+interface GetPatientsProps {
+  page: number;
+  perPage?: number;
+  params?: AxiosRequestConfig;
+}
+
 type PatientContextData = {
   patientList: Patient[];
-  getPatientsList(page: number, perPage?: 50 | 25 | 10 | 5): Promise<Patient[]>;
+  getPatientsList(props: GetPatientsProps): Promise<Patient[]>;
   clearList: () => void
   isLoading: boolean;
 }
@@ -49,14 +56,15 @@ export function PatientProvider({ children }: PatientProviderProps) {
     setPatientList([])
   }
 
-  async function getPatientsList(page: number, perPage: 50 | 25 | 10 | 5 = 50): Promise<Patient[]> {
+  async function getPatientsList({ page, perPage = 50, params }: GetPatientsProps): Promise<Patient[]> {
     
     setIsLoading(true);
 
     const patients = await api.get('/', {
       params: {
         page,
-        results: perPage
+        results: perPage,
+        ...params
       }
     }).then((response) => {
       //console.log(response.data)

@@ -38,11 +38,11 @@ export default function PatientsList() {
   }, [page]);
 
   const checkName = (name: string, str: string) => {
-    const pattern = str.split("").map((x) => {
-      return `(?=.*${x})`
+    const pattern = str.toLowerCase().split("").map((x) => {
+      return `(.*${x})`
     }).join("");
     var regex = new RegExp(`${pattern}`, "g")
-    return name.match(regex);
+    return name.toLowerCase().match(regex);
   }
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
