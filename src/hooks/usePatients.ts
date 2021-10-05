@@ -1,6 +1,6 @@
 import { api } from "../services/api";
 
-export type Pacient = {
+export type Patient = {
   gender: 'male' | 'female';
   name: {
     first: string;
@@ -25,22 +25,22 @@ export type Pacient = {
   }  
 }
 
-export async function getPacientsList(page: number): Promise<Pacient[]> {
+export async function getPatientsList(page: number): Promise<Patient[]> {
   return api.get('/', {
     params: {
       page
     }
   }).then((response) => {
-    return response.data?.results?.map((pacient: any) => {
+    return response.data?.results?.map((patient: any) => {
       return {
-        ...pacient,
-        picture: pacient.picture.medium,
-        dob: new Date(pacient.dob.date).toLocaleDateString('pt-BR', {
+        ...patient,
+        picture: patient.picture.medium,
+        dob: new Date(patient.dob.date).toLocaleDateString('pt-BR', {
           dateStyle: 'short'
         }),
         login: {
-          id: pacient.login.uuid,
-          url: `/${pacient.login.username}`
+          id: patient.login.uuid,
+          url: `/${patient.login.username}`
         }
       }
     })

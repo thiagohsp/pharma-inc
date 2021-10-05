@@ -1,23 +1,23 @@
 import {
-  Button, ButtonGroup, Heading, HStack, Icon, Modal, ModalBody, ModalCloseButton, ModalContent,
+  Avatar, Flex, Heading, HStack, Modal, ModalBody, ModalCloseButton, ModalContent,
   ModalFooter, ModalHeader, ModalOverlay,
-  Stack, Avatar, Flex, Text
+  Stack, Text
 } from "@chakra-ui/react";
-import {RiCalendarEventLine, RiFlagLine, RiGenderlessLine, RiHeartPulseLine, RiMailLine, RiMapPinLine, RiPhoneLine} from 'react-icons/ri'
 import React from "react";
-import { Pacient } from "../../hooks/usePacients";
+import { RiCalendarEventLine, RiFlagLine, RiGenderlessLine, RiHeartPulseLine, RiMailLine, RiMapPinLine, RiPhoneLine, RiShareLine } from 'react-icons/ri';
+import { Patient } from "../../hooks/usePatients";
 
-interface ShowPacientInfoModalProps {
+interface ShowPatientInfoModalProps {
   isOpen: boolean;
   onClose: () => void;
-  pacient: Pacient
+  patient: Patient
 }
 
-export default function ShowPacientInfoModal({
+export default function ShowPatientInfoModal({
   isOpen,
   onClose,
-  pacient
-}: ShowPacientInfoModalProps) {
+  patient
+}: ShowPatientInfoModalProps) {
 
   return (
     <>
@@ -42,7 +42,7 @@ export default function ShowPacientInfoModal({
             <Avatar 
               size="2xl" 
               border="4px solid white" 
-              src={pacient?.picture}
+              src={patient?.picture}
             />
           </Flex>
           <ModalHeader
@@ -56,37 +56,41 @@ export default function ShowPacientInfoModal({
                 size="md" 
                 fontWeight="normal"
               >
-                Informações do Paciente
+                Informações do Patiente
               </Heading>
             </HStack>
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Stack spacing={4}>
-              <Text fontWeight="bold" fontSize="xl">{`${pacient?.name?.first} ${pacient?.name?.last} `}</Text>
+              <Text fontWeight="bold" fontSize="xl">{`${patient?.name?.first} ${patient?.name?.last} `}</Text>
               <HStack>
                 <RiMapPinLine size={24}/>
-                <Text>{`${pacient?.location?.street?.name}, ${pacient?.location?.street?.number}`}</Text>
+                <Text>{`${patient?.location?.street?.name}, ${patient?.location?.street?.number}`}</Text>
               </HStack>
               <HStack>
                 <RiFlagLine size={24}/>
-                <Text>{`${pacient?.location?.city}, ${pacient?.location?.state} - ${pacient?.location?.country}`}</Text>
+                <Text>{`${patient?.location?.city}, ${patient?.location?.state} - ${patient?.location?.country}`}</Text>
               </HStack>
               <HStack>
                 <RiCalendarEventLine size={24}/>
-                <Text>{pacient?.dob}</Text>
+                <Text>{patient?.dob}</Text>
               </HStack>
               <HStack>
                 <RiGenderlessLine size={24}/>
-                <Text>{`${pacient?.gender === 'male' ? 'Masculino' : 'Feminino'}`}</Text>
+                <Text>{`${patient?.gender === 'male' ? 'Masculino' : 'Feminino'}`}</Text>
               </HStack>
               <HStack>
                 <RiPhoneLine size={24}/>
-                <Text>{pacient?.phone}</Text>
+                <Text>{patient?.phone}</Text>
               </HStack>
               <HStack>
                 <RiMailLine size={24}/>
-                <Text>{pacient?.email}</Text>
+                <Text>{patient?.email}</Text>
+              </HStack>
+              <HStack>
+                <RiShareLine size={24}/>
+                <Text>{patient?.login?.url}</Text>
               </HStack>
             </Stack>
           </ModalBody>

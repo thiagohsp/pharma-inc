@@ -15,8 +15,9 @@ export default function Header() {
       as="header"
       w="100%"
       h="20"
-      mt="4"
+      pt="4"
       boxShadow="sm"
+      bg="white"
     >
       <Flex
         w="100%"

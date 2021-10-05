@@ -1,46 +1,45 @@
-import { Box, Flex, Heading, IconButton, Spinner, Table, Tbody, Td, Th, Thead, Tr , Text} from '@chakra-ui/react'
+import { Box, Flex, Heading, IconButton, Spinner, Table, Tbody, Td, Th, Thead, Tr, Text, Select, Button } from '@chakra-ui/react'
 import type { GetServerSideProps } from 'next'
 import Head from 'next/head'
-import React, { useEffect, useState, UIEvent, ChangeEvent } from 'react'
-import { RiDeleteBin2Line, RiEdit2Line, RiEyeLine } from 'react-icons/ri'
+import React, { useEffect, useState, UIEvent, ChangeEvent, useContext } from 'react'
+import { RiDeleteBin2Line, RiEdit2Line, RiEyeLine, RiFilter2Line } from 'react-icons/ri'
+import GenderFilter from '../components/GenderFilter'
 import Header from '../components/Header'
 import SearchBox from '../components/Header/SearchBox'
-import ShowPacientInfoModal from '../components/ShowPacientInfoModal'
-import { getPacientsList, Pacient } from '../hooks/usePacients'
-import { api } from '../services/api'
+import ShowPatientInfoModal from '../components/ShowPatientInfoModal'
+import { PatientContext } from '../contexts/PatientContext'
+import { getPatientsList, Patient } from '../hooks/usePatients'
 
-interface PacientListProps {
-  pacients: Pacient[]
+enum Gender {
+  Male = 'male',
+  Female = 'female'
 }
 
-export default function PacientsList({ pacients = [] }: PacientListProps) {
+type PerPageValues = 50 | 25 | 10| 5
 
-  const [ page, setPage ] = useState(1);
-  const [ isLoading, setIsLoading ] = useState(false);
-  const [ pacientList, setPacientList ] = useState<Pacient[]>(pacients)
-  const [ pacient, setPacient ] = useState<Pacient>({} as Pacient)
-  const [ filter, setFilter ] = useState<string>()
-  const [ isOpen, setIsOpen] = useState(false)
+export default function PatientsList() {
+
+  const { getPatientsList, patientList, isLoading } = useContext(PatientContext);
+  
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState<PerPageValues>(50);
+  const [patient, setPatient] = useState<Patient>({} as Patient)
+  const [genderFilter, setGenderFilter] = useState<string[]>([Gender.Male , Gender.Female])
+  const [filter, setFilter] = useState<string>()
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
-    async function loadPacients() {
-      if (page > 1) {
-        getPacientsList(page).then((response) => {
-          setPacientList((prevList) => {
-            return [...prevList, ...response]
-          })
-          setIsLoading(false)
-        })
-      }
+    async function loadPatients() {
+      getPatientsList({page, perPage})
     }
-    
-    loadPacients();
-    
+
+    loadPatients();
+
   }, [page]);
 
   const checkName = (name: string, str: string) => {
-    const pattern = str.split("").map((x)=>{
-        return `(?=.*${x})`
+    const pattern = str.split("").map((x) => {
+      return `(?=.*${x})`
     }).join("");
     var regex = new RegExp(`${pattern}`, "g")
     return name.match(regex);
@@ -48,9 +47,8 @@ export default function PacientsList({ pacients = [] }: PacientListProps) {
 
   const handleScroll = (event: UIEvent<HTMLDivElement>) => {
     const isBottom = event.currentTarget.scrollHeight - event.currentTarget.scrollTop === event.currentTarget.clientHeight;
-    if (isBottom) { 
-      setIsLoading(true);
-      setPage((actualPage) => actualPage + 1)  
+    if (isBottom) {
+      setPage((actualPage) => actualPage + 1)
     }
   }
 
@@ -62,8 +60,21 @@ export default function PacientsList({ pacients = [] }: PacientListProps) {
     }
   }
 
-  const handleOpenModal = (pacient: Pacient) => {
-    setPacient(pacient);
+  const handleGenderFilter = (event: ChangeEvent<HTMLInputElement>) => {
+    console.log(event)
+    
+    const genders = [...genderFilter ]
+      .filter((item) => item !== event.target.name);
+    
+    if (event.target.checked) {
+      genders.push(event.target.name)
+    }
+
+    setGenderFilter(genders)
+  }
+
+  const handleOpenModal = (patient: Patient) => {
+    setPatient(patient);
     setIsOpen(true);
   }
 
@@ -73,11 +84,11 @@ export default function PacientsList({ pacients = [] }: PacientListProps) {
         <title>Home | Pharma-inc.</title>
       </Head>
 
-      { pacient && 
-        <ShowPacientInfoModal 
+      {patient &&
+        <ShowPatientInfoModal
           isOpen={isOpen}
           onClose={() => setIsOpen(false)}
-          pacient={pacient}
+          patient={patient}
         />
       }
 
@@ -94,6 +105,7 @@ export default function PacientsList({ pacients = [] }: PacientListProps) {
         <Box
           flex="1"
           p="8"
+          bg="white"
           borderRadius="lg"
           border="1px"
           borderColor="gray.100"
@@ -109,14 +121,35 @@ export default function PacientsList({ pacients = [] }: PacientListProps) {
               Pacientes
             </Heading>
 
-            <SearchBox 
-              onChange={handleSearch}
-            />
+            <Flex
+              flex={1}
+              alignItems="center"
+              justifyContent="flex-end"
+            >
+              <SearchBox
+                value={filter}
+                onChange={handleSearch}
+              />
+
+              <Select
+                name="per_page"
+                size="lg"
+                w="300px"
+                ml={4}
+                onChange={(event) => {
+                  setPerPage(Number(event.target.value) as PerPageValues)
+                }}
+              >
+                <option value={50}>50 registros</option>
+                <option value={25}>25 registros</option>
+                <option value={10}>10 registros</option>
+                <option value={5}>5 registros</option>
+              </Select>
+
+            </Flex>
 
           </Flex>
-          
-
-          <Box 
+          <Box
             mt={8}
             h="600px"
             overflowY="scroll"
@@ -134,46 +167,59 @@ export default function PacientsList({ pacients = [] }: PacientListProps) {
               },
             }}
             onScroll={handleScroll}>
-            {pacientList && (
+
+            {patientList && (
               <Table
                 colorScheme="whiteAlpha"
                 fontSize="sm"
               >
                 <Thead>
-                  <Tr 
+                  <Tr
                     bg="gray.50"
                   >
                     <Th>Nome</Th>
-                    <Th>Gênero</Th>
+                    <Th>
+                      <GenderFilter
+                        genders={{
+                          male: genderFilter.includes(Gender.Male), 
+                          female: genderFilter.includes(Gender.Female)
+                        }}
+                        onChange={handleGenderFilter}
+                      />                  
+                    </Th>
                     <Th>Data de Nascimento</Th>
                     <Th>Ações</Th>
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {pacientList.filter((pacient) =>
-                    filter ?
-                      pacient.name.first
-                        .concat(pacient.name.last)
-                        .toLowerCase()
-                        .includes(
-                          filter.toLowerCase()
-                        ) || checkName(pacient.name.first.concat(pacient.name.last), filter)
-                      : true
+                  {patientList
+                    .filter((patient) => 
+                      genderFilter.includes(patient.gender))
+                    .filter((patient) =>
+                      filter ?
+                        patient.name.first
+                          .concat(patient.name.last)
+                          .toLowerCase()
+                          .includes(
+                            filter.toLowerCase()
+                          ) || checkName(patient.name.first.concat(patient.name.last), filter)
+                        : true
                     ).map((item) => (
-                    <Tr key={`${item.name.first} ${item.name.last}`} borderBlock="2px" borderColor="gray.200" >
-                      <Td>{`${item.name.first} ${item.name.last}`}</Td>
-                      <Td>{item.gender === 'male' ? 'Masculino' : 'Feminino'}</Td>
-                      <Td>{item.dob}</Td>
-                      <Td>
-                        <IconButton
-                          color="gray.500"
-                          aria-label="Visualizar"
-                          icon={<RiEyeLine />}
-                          onClick={() => handleOpenModal(item)}
-                        />
-                      </Td>
-                    </Tr>
-                  ))}
+                      <Tr key={item.login.id} borderBlock="2px" borderColor="gray.200" >
+                        <Td>{`${item.name.first} ${item.name.last}`}</Td>
+                        <Td>{item.gender === 'male' ? 'Masculino' : 'Feminino'}</Td>
+                        <Td>{item.dob}</Td>
+                        <Td>
+                          <IconButton
+                            color="gray.500"
+                            aria-label="Visualizar"
+                            icon={<RiEyeLine />}
+                            onClick={() => handleOpenModal(item)}
+                          />
+                        </Td>
+                      </Tr>
+                    ))
+                  }
                 </Tbody>
               </Table>
             )}
@@ -185,7 +231,7 @@ export default function PacientsList({ pacients = [] }: PacientListProps) {
               mb={10}
               p={4}
             >
-              { isLoading && (
+              {isLoading && (
                 <>
                   <Spinner
                     thickness="4px"
@@ -197,8 +243,8 @@ export default function PacientsList({ pacients = [] }: PacientListProps) {
                   />
                   <Text color="gray.400">Loading more...</Text>
                 </>
-              ) }
-            
+              )}
+
             </Flex>
 
           </Box>
@@ -207,14 +253,4 @@ export default function PacientsList({ pacients = [] }: PacientListProps) {
       </Flex>
     </>
   )
-}
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  const pacients: Pacient[] = await getPacientsList(1);
-  
-  return {
-    props: {
-      pacients
-    }
-  }
 }
