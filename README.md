@@ -114,13 +114,9 @@ Thiago Pereira - [@thiagohsp](https://instagram.com/thiagohsp) - mr.thiagoo@gmai
 
 Project Link: [https://github.com/thiagohsp/pharma-inc](https://github.com/thiagohsp/pharma-inc)
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
+Challenge by [coodesh](https://coodesh.com/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
