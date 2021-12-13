@@ -67,7 +67,6 @@ export function PatientProvider({ children }: PatientProviderProps) {
         ...params
       }
     }).then((response) => {
-      //console.log(response.data)
       return response.data?.results?.map((patient: any) => {
         return {
           ...patient,

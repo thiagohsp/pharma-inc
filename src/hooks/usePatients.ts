@@ -46,20 +46,3 @@ export async function getPatientsList(page: number): Promise<Patient[]> {
     })
   })
 }
-
-
-/**
- * 
-
-  picture.medium: Imagem
-  name.first name.last Nome completo
-  email: Email
-  gender: Gênero
-  dob.date: Data de nascimento
-  phone: Telefone
-  location.country: Nacionalidade
-  location.street: Endereço
-  login.uuid: ID (Número de identificação)
-  login.username: URL para compartilhamento
-*
-**/
